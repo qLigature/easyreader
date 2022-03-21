@@ -1,6 +1,33 @@
 import pandas as pd
 from tabula import read_pdf
 
+from pdfminer.pdfparser import PDFParser
+from pdfminer.pdfdocument import PDFDocument
+from pdfminer.pdfpage import PDFPage
+from pdfminer.pdfinterp import resolve1
+
+
+def parse_pdf(pdf_filepath, include_pagenum=False):
+
+    # Gets total number of pages in PDF
+    # Credits to: https://stackoverflow.com/questions/45841012/how-can-i-get-the-total-count-of-total-pages-of-a-pdf-file-using-pdfminer-in-pyt
+    pdf = open(pdf_filepath, 'rb')
+    parser = PDFParser(pdf)
+    document = PDFDocument(parser)
+    total_pages = resolve1(document.catalog['Pages'])['Count']
+    del pdf
+
+    raw_df = []
+
+    # Iterate through all PDF pages, parse them, then combine them all into a single dataframe
+    for page in range(1, total_pages + 1):
+        raw_df.append(parse_page(test_filepath, page, include_pagenum))
+        print("Page {} done.".format(page))
+
+    df = pd.concat(raw_df)
+
+    return df
+
 
 def parse_page(pdf_filepath, page, include_pagenum=False):
 
@@ -19,6 +46,25 @@ def parse_page(pdf_filepath, page, include_pagenum=False):
         return add_page_col(raw_df[0], page)
 
     return raw_df[0]
+
+
+def add_page_col(df, page):
+    page_num = [page for i in range(0, len(df))]
+    df['PageNum'] = page_num
+    return df
+
+
+def process_df(df):
+    col_names = ["PostedDate", "TrxDate", "Transaction", "Description", "BU",
+                 "OBUIDClass", "VATAmount", "Debit", "Credit", "TotalAmount", "RunningBalance", "Page"]
+
+    # Delete excess rows outside of ones aligned with a non-empty RunningBalance cell
+    df = df.set_axis(col_names, axis=1).dropna(
+        subset=["RunningBalance"]).reset_index(drop=True)
+
+    # Trim OBUIDClass column to contain only plate numbers whenever possible
+    df = format_plate(df)
+    return df
 
 
 def format_plate(df):
@@ -40,27 +86,8 @@ def format_plate(df):
     return df
 
 
-def add_page_col(df, page):
-    page_num = [page for i in range(0, len(df))]
-    df['PageNum'] = page_num
-    return df
-
-
 test_filepath = "./test_data/220320_220305.pdf"
-total_pages = 47
 
-raw_df = []
-col_names = ["PostedDate", "TrxDate", "Transaction", "Description", "BU",
-             "OBUIDClass", "VATAmount", "Debit", "Credit", "TotalAmount", "RunningBalance", "Page"]
-
-for page in range(1, total_pages + 1):
-    raw_df.append(parse_page(test_filepath, page, True))
-    print("Page {} done.".format(page))
-
-df = pd.concat(raw_df)
-df = df.set_axis(col_names, axis=1).dropna(
-    subset=["RunningBalance"]).reset_index(drop=True)
-
-df = format_plate(df)
-
+df = parse_pdf(test_filepath, True)
+df = process_df(df)
 df.to_csv('./output.csv')
