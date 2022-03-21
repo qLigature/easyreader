@@ -3,8 +3,18 @@ from tabula import read_pdf
 
 from pdfminer.pdfparser import PDFParser
 from pdfminer.pdfdocument import PDFDocument
-from pdfminer.pdfpage import PDFPage
 from pdfminer.pdfinterp import resolve1
+
+
+def get_pdf_path():
+    while True:
+        path = input("Enter the PDF's filepath: ")
+        try:
+            pdf = open(path, 'rb')
+            del pdf
+            return path
+        except:
+            print("Error: Invalid path entered. Try again.")
 
 
 def parse_pdf(pdf_filepath, include_pagenum=False):
@@ -21,8 +31,8 @@ def parse_pdf(pdf_filepath, include_pagenum=False):
 
     # Iterate through all PDF pages, parse them, then combine them all into a single dataframe
     for page in range(1, total_pages + 1):
-        raw_df.append(parse_page(test_filepath, page, include_pagenum))
-        print("Page {} done.".format(page))
+        raw_df.append(parse_page(pdf_filepath, page, include_pagenum))
+        print("Page {} done".format(page))
 
     df = pd.concat(raw_df)
 
@@ -86,8 +96,24 @@ def format_plate(df):
     return df
 
 
-test_filepath = "./test_data/220320_220305.pdf"
+def generate_output(pdf_filepath, df):
+    # Get filename of PDF and save it as the filename of the CSV output
+    pdf_filename = pdf_filepath.split("/")[-1].split(".pdf")[0]
+    output_filepath = "./" + pdf_filename + ".csv"
 
-df = parse_pdf(test_filepath, True)
+    try:
+        df.to_csv(output_filepath)
+    except PermissionError:
+        print("Error: Cannot create output file. Close any related files or programs then try again.")
+        input()
+        df.to_csv(output_filepath)
+
+    print("PDF successfully parsed. Output data is in {}.".format(output_filepath))
+
+
+pdf_filepath = get_pdf_path()
+
+df = parse_pdf(pdf_filepath, True)
 df = process_df(df)
-df.to_csv('./output.csv')
+
+generate_output(pdf_filepath, df)
