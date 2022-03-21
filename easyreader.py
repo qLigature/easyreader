@@ -7,6 +7,7 @@ from pdfminer.pdfinterp import resolve1
 
 from easydownload import download_soa
 
+
 def get_pdf_path():
     while True:
         path = input("Enter the PDF's filepath: ")
@@ -111,11 +112,13 @@ def generate_output(pdf_filepath, df):
 
     print("PDF successfully parsed. Output data is in {}.".format(output_filepath))
 
+
+# Download the SOA PDF from Easytrip's website
 pdf_filepath = download_soa()
 
-# pdf_filepath = get_pdf_path()
-
+# Parse and process the downloaded PDF
 df = parse_pdf(pdf_filepath, True)
 df = process_df(df)
 
+# Save the output as a .csv file
 generate_output(pdf_filepath, df)
