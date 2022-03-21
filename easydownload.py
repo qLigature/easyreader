@@ -32,14 +32,14 @@ def initialize_browser():
     chromeOptions = webdriver.ChromeOptions()
     prefs = {"plugins.always_open_pdf_externally": True}
     chromeOptions.add_experimental_option("prefs", prefs)
-    params = {"behavior": "allow", "downloadPath": downloadpath}
+    params = {"behavior": "allow", "downloadPath": os.getcwd() + "\\pdf"}
     driver = webdriver.Chrome(chrome_options=chromeOptions)
     driver.execute_cdp_cmd("Page.setDownloadBehavior", params)
 
     return driver
 
 
-def log_in(driver):
+def log_in(driver, username, password):
     # Input credentials and log in
     username_field = driver.find_element(By.NAME, "UserName")
     password_field = driver.find_element(By.NAME, "Password")
@@ -50,10 +50,11 @@ def log_in(driver):
     password_field.send_keys(password)
     login_button.click()
 
+
+def generate_soa(driver, target_date, wait_time, wait_time_download):
+
     time.sleep(wait_time)
 
-
-def generate_soa(driver):
     # Go to Generate SOA
     soa_card = driver.find_element(By.LINK_TEXT, "Generate SOA")
     soa_card.click()
@@ -98,37 +99,41 @@ def generate_soa(driver):
     time.sleep(wait_time_download)
 
 
-# Load config values from YAML file
-with open('config.yaml', 'r') as file:
-    config = yaml.safe_load(file)
+def download_soa():
 
-username = config["easytrip"]["username"]
-password = config["easytrip"]["password"]
-wait_time = config["selenium"]["wait-time"]
-wait_time_download = config["selenium"]["wait-time-download"]
-downloadpath = os.getcwd() + "\\pdf"
+    # Load config values from YAML file
+    with open('config.yaml', 'r') as file:
+        config = yaml.safe_load(file)
 
-# Get target SOA date
-target_date = get_target_date()
-parsed_date = datetime.strptime(target_date, "%m/%d/%Y")
-output_filename = "./pdf/" + parsed_date.strftime("%Y%m%d") + ".pdf"
+    username = config["easytrip"]["username"]
+    password = config["easytrip"]["password"]
+    wait_time = config["selenium"]["wait-time"]
+    wait_time_download = config["selenium"]["wait-time-download"]
+    downloadpath = os.getcwd() + "\\pdf"
 
-driver = initialize_browser()
+    # Get target SOA date
+    target_date = get_target_date()
+    parsed_date = datetime.strptime(target_date, "%m/%d/%Y")
+    output_filename = "./pdf/" + parsed_date.strftime("%Y%m%d") + ".pdf"
 
-# Go to Easytrip login
-target_url = "https://myeasytripcams.easytrip.ph/CAMS/"
-driver.get(target_url)
+    driver = initialize_browser()
 
-# Interact with website and download a PDF
-log_in(driver)
-generate_soa(driver)
+    # Go to Easytrip login
+    target_url = "https://myeasytripcams.easytrip.ph/CAMS/"
+    driver.get(target_url)
 
-# Rename downloaded file and print status
-try:
-    os.rename("./pdf/SOAViewer.pdf", output_filename)
-    print("PDF file successfully downloaded.")
-    driver.quit()
+    # Interact with website and download a PDF
+    log_in(driver, username, password)
+    generate_soa(driver, target_date, wait_time, wait_time_download)
 
-except:
-    print("Error! Skipping download because either (1) the download failed, or (2) the file you are trying to download already exists.")
-    input("Press any key to continue...")
+    # Rename downloaded file and print status
+    try:
+        os.rename("./pdf/SOAViewer.pdf", output_filename)
+        print("PDF file successfully downloaded.")
+        driver.quit()
+
+    except:
+        print("Error! Skipping download because either (1) the download failed, or (2) the file you are trying to download already exists.")
+        input("Press any key to continue...")
+    
+    return output_filename
