@@ -3,9 +3,9 @@ from tabula import read_pdf
 def parse_page(pdf_filepath, page):
 
     # coordinates will dictate where tabula will scan the table
-    # refer to https://github.com/tabulapdf/tabula-java/wiki/Using-the-command-line-tabula-extractor-tool#grab-coordinates-of-the-table-you-want
-    page1_area = (364.066, 14.503, 693.547, 579.753)
-    page2_area = (55.409, 13.759, 678.672, 580.497)
+    # see: https://stackoverflow.com/questions/56065307/how-can-i-stop-tabula-from-automatically-dropping-empty-columns/71553990#71553990
+    page1_area = (364.066, 15, 693.547, 580)
+    page2_area = (55.409, 15, 678.672, 580)
     # to get column coordinates, select the column manually in tabula app and get coordinates
     columns = "--columns 83,160,190,258,288,364,400,435,480,533"
 
@@ -14,9 +14,14 @@ def parse_page(pdf_filepath, page):
     else:
         coordinates = page2_area
 
-    raw_df = read_pdf(pdf_filepath, pages=[page], area=coordinates, pandas_options={'header':None}, options=columns)
-    return raw_df
+    raw_df = read_pdf(pdf_filepath, pages=[page], area=coordinates, options=columns, pandas_options={'header':None})
+    return raw_df[0]
 
-test_filepath = "./test_data/220320_220305.pdf"
+test_filepath = "./test_data/220304_220217.pdf"
 page = 3
-parse_page(test_filepath, page)[0].to_csv('./output.csv')
+# parse_page(test_filepath, page).to_csv('./output.csv')
+
+# test columns for all pages
+# total_pages = 38
+# for page in range(1, total_pages):
+#     print(len(parse_page(test_filepath, page).columns))
