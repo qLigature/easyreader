@@ -6,23 +6,39 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.action_chains import ActionChains
+from datetime import datetime, timedelta
+
+
+def get_target_date():
+
+    input_date = input(
+        "Enter target SOA date, in MM/DD/YYYY format. Leave blank to download yesterday's SOA: ")
+    if input_date == "":
+        yesterday = datetime.today() - timedelta(days=1)
+        return yesterday.strftime("%m/%d/%Y")
+    try:
+        target_date = datetime.strptime(input_date, "%m/%d/%Y")
+        return target_date.strftime("%m/%d/%Y")
+    except:
+        print("Error: Failed to process invalid value. Try again.")
+        print("-"*20)
+        return get_target_date()
+
 
 # Load config values from YAML file
-
 with open('config.yaml', 'r') as file:
     config = yaml.safe_load(file)
 
-targeturl = "https://myeasytripcams.easytrip.ph/CAMS/"
-username = config["easytrip"]["credentials"]["username"]
-password = config["easytrip"]["credentials"]["password"]
+username = config["easytrip"]["username"]
+password = config["easytrip"]["password"]
 wait_time = config["selenium"]["wait-time"]
 wait_time_download = config["selenium"]["wait-time-download"]
-target_date = "03/20/2022"
+downloadpath = os.getcwd() + "\\pdf"
 
-if config["easytrip"]["downloadpath"] == None:
-    downloadpath = os.getcwd()
-else:
-    downloadpath = config["easytrip"]["downloadpath"]
+# Get target SOA date
+target_date = get_target_date()
+parsed_date = datetime.strptime(target_date, "%m/%d/%Y")
+output_filename = "./pdf/" + parsed_date.strftime("%Y%m%d") + ".pdf"
 
 # Instantiate browser
 chromedriver_autoinstaller.install()
@@ -35,6 +51,7 @@ driver = webdriver.Chrome(chrome_options=chromeOptions)
 driver.execute_cdp_cmd("Page.setDownloadBehavior", params)
 
 # Go to Easytrip login
+targeturl = "https://myeasytripcams.easytrip.ph/CAMS/"
 driver.get(targeturl)
 
 # Input credentials and log in
@@ -90,3 +107,14 @@ actions.perform()
 generate_btn.click()
 
 time.sleep(wait_time_download)
+
+# Rename downloaded file and print status
+try:
+    os.rename("./pdf/SOAViewer.pdf", output_filename)
+    print("PDF file successfully downloaded.")
+    driver.quit()
+
+except:
+    print("Error! Skipping download because either (1) the download failed, or (2) the file you are trying to download already exists.")
+    input("Press any key to continue...")
+    
