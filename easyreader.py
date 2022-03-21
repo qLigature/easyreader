@@ -5,6 +5,8 @@ from pdfminer.pdfparser import PDFParser
 from pdfminer.pdfdocument import PDFDocument
 from pdfminer.pdfinterp import resolve1
 
+from easydownload import download_soa
+
 
 def get_pdf_path():
     while True:
@@ -99,7 +101,7 @@ def format_plate(df):
 def generate_output(pdf_filepath, df):
     # Get filename of PDF and save it as the filename of the CSV output
     pdf_filename = pdf_filepath.split("/")[-1].split(".pdf")[0]
-    output_filepath = "./" + pdf_filename + ".csv"
+    output_filepath = "./csv/" + pdf_filename + ".csv"
 
     try:
         df.to_csv(output_filepath)
@@ -111,9 +113,12 @@ def generate_output(pdf_filepath, df):
     print("PDF successfully parsed. Output data is in {}.".format(output_filepath))
 
 
-pdf_filepath = get_pdf_path()
+# Download the SOA PDF from Easytrip's website
+pdf_filepath = download_soa()
 
+# Parse and process the downloaded PDF
 df = parse_pdf(pdf_filepath, True)
 df = process_df(df)
 
+# Save the output as a .csv file
 generate_output(pdf_filepath, df)

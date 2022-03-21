@@ -1,0 +1,10 @@
+easytrip:
+  # Place your Easytrip credentials here:
+  username: myusername
+  password: mypassword
+
+selenium:
+  # Delay per webpage transition in seconds
+  wait-time: 3
+  # Wait time after browser initiates PDF download
+  wait-time-download: 10
