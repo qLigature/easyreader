@@ -26,9 +26,9 @@ Use `pip install` for the following if needed:
 | Add option to include page column for denoting where the transaction is located in the PDF file | Done |
 | Format OBUIDClass column into plate numbers whenever possible | Done |
 | Save dataframe as .csv file | Done |
+| Add automatic downloading of SOA via Selenium | Done |
 | Add filtering certain types of transactions | Planned |
 | Add statistics for certain transactions, including overcharging | Planned |
-| Add automatic downloading of SOA via Selenium | Done |
 | Add online dashboard functionality for automatic real-time viewing of balance and transactions | Planned |
 
 ## Links
