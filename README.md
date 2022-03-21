@@ -10,9 +10,9 @@ Run easyreader.py and pass in the path of the PDF file to be parsed. It will gen
 
 | Functionality | Status |
 | - | - |
-| Generate dataframes from pdf file through tabula-py | Done |
-| Process dataframes to have equal columns  | Done |
-| Save parsed dataframes as .csv files | Done |
-| Add extra functions for filtering certain types of transactions | Not done |
-
-
+| Generate dataframe from PDF file via tabula-py | Done |
+| Ensure resulting dataframe has equal columns | Done |
+| Format OBUIDClass column into plate numbers whenever possible | Done |
+| Add extra functions for filtering certain types of transactions | Ongoing |
+| Add option to include page column for denoting where the transaction is located in the file | Done |
+| Save parsed dataframe as .csv file | Done |
