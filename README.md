@@ -28,7 +28,7 @@ Use `pip install` for the following if needed:
 | Save dataframe as .csv file | Done |
 | Add filtering certain types of transactions | Planned |
 | Add statistics for certain transactions, including overcharging | Planned |
-| Add automatic downloading of SOA via Selenium | Ongoing |
+| Add automatic downloading of SOA via Selenium | Done |
 | Add online dashboard functionality for automatic real-time viewing of balance and transactions | Planned |
 
 ## Links
