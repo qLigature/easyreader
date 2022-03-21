@@ -10,9 +10,9 @@ Run easyreader.py and pass in the path of the PDF file to be parsed. It will gen
 
 | Functionality | Status |
 | - | - |
-| Generate dataframes from pdf file through tabula-py | Ongoing |
-| Process dataframes to have equal columns  | Not done |
-| Save parsed dataframes as .csv files | Not done |
+| Generate dataframes from pdf file through tabula-py | Done |
+| Process dataframes to have equal columns  | Done |
+| Save parsed dataframes as .csv files | Done |
 | Add extra functions for filtering certain types of transactions | Not done |
 
 
